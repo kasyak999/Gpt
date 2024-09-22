@@ -5,7 +5,8 @@ from dotenv import load_dotenv
 
 
 load_dotenv()  # загрузка переменых окружения
-MODEL_NAME = 'Meta-Llama-3-8B-Instruct.Q4_0.gguf'
+MODEL_NAME = 'Meta-Llama-3-8B-Instruct.Q4_0.gguf'  # отвечает на русском
+# MODEL_NAME = 'gpt4all-13b-snoozy-q4_0.gguf'  # отвечает быстро но на английском
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 bot = TeleBot(token=TELEGRAM_TOKEN)
