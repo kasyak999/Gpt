@@ -10,7 +10,7 @@ MODEL_NAME = 'Meta-Llama-3-8B-Instruct.Q4_0.gguf'  # отвечает на ру�
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 TEMP_BOT = 0.5  # креативность бота
-MAX_TOKEN = 1024  # Длина ответа бота
+MAX_TOKEN = 5000  # Длина ответа бота
 model = GPT4All(
     model_name=MODEL_NAME, model_path='Models', device='cpu', verbose=False)
 
@@ -28,14 +28,12 @@ def check_tokens():
 
 def sending_message(bot, message, result):
     """Отправка сообщения"""
-    if len(result) > 4096:
+    print(len(result))
+    maximum = 4096  # Ограничение символов в телеграме
+    for i in range(0, len(result), maximum):
         bot.send_message(
-            chat_id=message.chat.id, text=result[:4095], parse_mode='Markdown')
-        bot.send_message(
-            chat_id=message.chat.id, text=result[4095:], parse_mode='Markdown')
-    else:
-        bot.send_message(
-            chat_id=message.chat.id, text=result, parse_mode='Markdown')
+            chat_id=message.chat.id, text=result[i:i+maximum],
+            parse_mode='Markdown')
 
 
 if __name__ == '__main__':
@@ -62,7 +60,6 @@ if __name__ == '__main__':
             if int(TELEGRAM_CHAT_ID) == message.chat.id:
                 result = model.generate(
                     prompt=message.text, temp=TEMP_BOT, max_tokens=MAX_TOKEN)
-                # sending_message(bot, message, result)
             else:
                 result = (
                     'Вы не можете отправлять запросы боту \n'
