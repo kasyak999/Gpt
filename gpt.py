@@ -62,14 +62,13 @@ if __name__ == '__main__':
             if int(TELEGRAM_CHAT_ID) == message.chat.id:
                 result = model.generate(
                     prompt=message.text, temp=TEMP_BOT, max_tokens=MAX_TOKEN)
-                sending_message(bot, message, result)
+                # sending_message(bot, message, result)
             else:
                 result = (
                     'Вы не можете отправлять запросы боту \n'
-                    f'<b>Ваш id {message.chat.id}</b>'
+                    f'***Ваш id {message.chat.id}***'
                 )
-                bot.send_message(
-                    chat_id=message.chat.id, text=result, parse_mode='HTML')
+            sending_message(bot, message, result)
 
         try:
             bot.polling()
