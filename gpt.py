@@ -2,6 +2,8 @@ from gpt4all import GPT4All
 from telebot import TeleBot
 import os
 from dotenv import load_dotenv
+import threading
+import time
 
 
 load_dotenv()  # загрузка переменых окружения
@@ -13,6 +15,7 @@ TEMP_BOT = 0.5  # креативность бота
 MAX_TOKEN = 5000  # Длина ответа бота
 model = GPT4All(
     model_name=MODEL_NAME, model_path='Models', device='cpu', verbose=False)
+stop_typing = True
 
 
 def check_tokens():
@@ -28,12 +31,21 @@ def check_tokens():
 
 def sending_message(bot, message, result):
     """Отправка сообщения"""
-    print(len(result))
+    # print(len(result))
     maximum = 4096  # Ограничение символов в телеграме
     for i in range(0, len(result), maximum):
         bot.send_message(
             chat_id=message.chat.id, text=result[i:i+maximum],
             parse_mode='Markdown')
+
+
+def task_runner(bot_value, message):
+    """Надпись бот печатает"""
+    global stop_typing
+    while stop_typing:
+        bot_value.send_chat_action(chat_id=message, action='typing')
+        time.sleep(4)
+    stop_typing = True
 
 
 if __name__ == '__main__':
@@ -56,7 +68,8 @@ if __name__ == '__main__':
         @bot.message_handler(func=lambda message: True)
         def echo_all(message):
             """Диалог с ботом"""
-            bot.send_chat_action(chat_id=message.chat.id, action='typing')
+            threading.Thread(  # запускаем в фоном режиме
+                target=task_runner, args=(bot, message.chat.id)).start()
             if int(TELEGRAM_CHAT_ID) == message.chat.id:
                 result = model.generate(
                     prompt=message.text, temp=TEMP_BOT, max_tokens=MAX_TOKEN)
@@ -65,6 +78,8 @@ if __name__ == '__main__':
                     'Вы не можете отправлять запросы боту \n'
                     f'***Ваш id {message.chat.id}***'
                 )
+            global stop_typing
+            stop_typing = False
             sending_message(bot, message, result)
 
         try:
