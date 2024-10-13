@@ -11,7 +11,7 @@ with model.chat_session():
     print('-------------------')
     while True:
         context = input(Fore.GREEN + 'Введите текст: ' + Style.RESET_ALL)
-        print(Fore.BLUE + 'Ответ: ' + Style.RESET_ALL, end='')
+        print(Fore.BLUE + 'Ответ: ' + Style.RESET_ALL, end='', flush=True)
         result = model.generate(prompt=context, temp=0)
         for char in result:
             print(char, end='', flush=True)
